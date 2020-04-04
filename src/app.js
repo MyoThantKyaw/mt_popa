@@ -1,17 +1,11 @@
 var THREE = require("three");
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { GLTFLoader, GLTFParser } from 'three/examples/jsm/loaders/GLTFLoader';
-import { Mesh, Sphere, RedIntegerFormat, BoxGeometry } from 'three';
+// import { GLTFLoader, GLTFParser } from 'three/examples/jsm/loaders/GLTFLoader';
+// import { Mesh, Sphere, RedIntegerFormat, BoxGeometry } from 'three';
 
-// import {TerrainLoader} from "./TerrainLoader"
-// import * as terrain from "../src/textures/clipped.tif";
-// import * as mountainImage from "../src/textures/popa.jpg";
 require("./TerrainLoader")
 // import {img} from "../src/index_2"
 
-// var Fig1_1No1 = require("../src/Fig1_1No1.js");
-
-// var GeoTIFF = require("geotiff")
 
 var scene, camera, renderer, orbit;
 var perspective_camera;
