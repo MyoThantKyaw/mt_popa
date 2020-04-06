@@ -103,7 +103,7 @@ function init() {
         // var geometry_buffer = new THREE.PlaneBufferGeometry(150, 150 * ((height + 1)/ (width + 1)) , width, height);
 
         for (var i = 0, l = geometry.vertices.length; i < l; i++) {
-            geometry.vertices[i].z = (data[i] / 30) - 10;
+            geometry.vertices[i].z = (data[i] / 40) - 10;
            
         }
         
@@ -163,7 +163,7 @@ function init() {
 }
 
 function addBasePlane(width, height, geometry) {
-    var base_plane_z = -4;
+    var base_plane_z = -2.7;
     var mat = new THREE.MeshBasicMaterial({ color: 0x84796e});
     var points = []
 
