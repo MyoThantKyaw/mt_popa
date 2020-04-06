@@ -58,36 +58,36 @@ function init() {
     var spotLight = new THREE.SpotLight(0xffffff);
     spotLight.position.set(50, 50, 50);
 
-
-    var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
-    hemiLight.color.setHSL(0.6, 1, 0.6);
-    hemiLight.groundColor.setHSL(0.095, 1, 0.75);
-    hemiLight.position.set(0, 50, 0);
-    //    scene.add( hemiLight );
-    hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
-    hemiLight.color.setHSL(0.6, 1, 0.6);
-    hemiLight.groundColor.setHSL(0.095, 1, 0.75);
-    hemiLight.position.set(0, 50, 0);
+    // scene.add(new THREE.AxesHelper(100))
+    // var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
+    // hemiLight.color.setHSL(0.6, 1, 0.6);
+    // hemiLight.groundColor.setHSL(0.095, 1, 0.75);
+    // hemiLight.position.set(0, 50, 0);
+    // //    scene.add( hemiLight );
+    // hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
+    // hemiLight.color.setHSL(0.6, 1, 0.6);
+    // hemiLight.groundColor.setHSL(0.095, 1, 0.75);
+    // hemiLight.position.set(0, 50, 0);
     // scene.add( hemiLight );
 
-    var dirLight = new THREE.DirectionalLight(0xffffff, 1);
-    dirLight.color.setHSL(0.1, 1, 0.95);
-    dirLight.position.set(100, 50, 100);
-    dirLight.position.multiplyScalar(30);
-    //scene.add( dirLight );
+    // var dirLight = new THREE.DirectionalLight(0xffffff, 1);
+    // dirLight.color.setHSL(0.1, 1, 0.95);
+    // dirLight.position.set(100, 50, 100);
+    // dirLight.position.multiplyScalar(30);
+    // //scene.add( dirLight );
 
-    var dirLight1 = new THREE.DirectionalLight(0xffffff, 1);
-    dirLight1.color.setHSL(0.1, 1, 0.95);
-    dirLight1.position.set(-100, -50, -100);
-    dirLight1.position.multiplyScalar(30);
-    ///scene.add( dirLight1 );
+    // var dirLight1 = new THREE.DirectionalLight(0xffffff, 1);
+    // dirLight1.color.setHSL(0.1, 1, 0.95);
+    // dirLight1.position.set(-100, -50, -100);
+    // dirLight1.position.multiplyScalar(30);
+    // ///scene.add( dirLight1 );
 
-    pointLight = new THREE.PointLight(0xffffff, 1);
-    pointLight.position.copy(camera.position);
-    scene.add(pointLight);
+    // pointLight = new THREE.PointLight(0xffffff, 1);
+    // pointLight.position.copy(camera.position);
+    // scene.add(pointLight);
 
-    var spotLight1 = new THREE.SpotLight(0xffffff);
-    spotLight1.position.set(-50, -50, -50);
+    // var spotLight1 = new THREE.SpotLight(0xffffff);
+    // spotLight1.position.set(-50, -50, -50);
 
     // scene.add(spotLight1)
     // loadTerrain();
@@ -96,18 +96,37 @@ function init() {
     var terrainLoader = new THREE.TerrainLoader()
     terrainLoader.load('dem.bin', function (data) {
 
-        var width = (423) - 1;
-        var height = (346) - 1;
+        var width = (210) - 1;
+        var height = (196) - 1;
+        
         var geometry = new THREE.PlaneGeometry(150, 150 / ((width + 1) / (height + 1)), width, height);
+        // var geometry_buffer = new THREE.PlaneBufferGeometry(150, 150 * ((height + 1)/ (width + 1)) , width, height);
+
         for (var i = 0, l = geometry.vertices.length; i < l; i++) {
             geometry.vertices[i].z = (data[i] / 30) - 10;
+           
         }
+        
+        // let pos = geometry_buffer.getAttribute("position");
+        // let pa = pos.array;
+
+        // var hVerts = width  + 1;
+        // var wVerts = height + 1;
+
+        // var index = 0
+        // for (let j = 0; j < hVerts; j++) {
+        //     for (let i = 0; i < wVerts; i++) {
+        //         pa[3*(j*wVerts+i)+2] =  (data[index++] / 33) - 10;
+        //     }
+        // }
+        // pos.needsUpdate = true;
+        var bufferGeometry = new THREE.BufferGeometry().fromGeometry( geometry );
 
         var texture_loader = new THREE.TextureLoader();
 
         texture_loader.load(
             // resource URL
-            'texture.png',
+            'texture.jpg',
         
             // onLoad callback
             function ( texture ) {
@@ -118,7 +137,7 @@ function init() {
             
                 });
         
-                var plane = new THREE.Mesh(geometry, material);
+                var plane = new THREE.Mesh(bufferGeometry, material);
                 
                 scene.add(plane);
                 addBasePlane(width, height, geometry)
@@ -178,11 +197,12 @@ function addBasePlane(width, height, geometry) {
     var side_length_y = Math.abs(geometry.vertices[width].x - geometry.vertices[0].x)
     var side_length_x = Math.abs(geometry.vertices[0].y - geometry.vertices[height * (width + 1)].y)
 
-    var material_side_plane = new THREE.MeshBasicMaterial({ color: 0xafa192, side: THREE.DoubleSide })
+    var material_side_plane = new THREE.MeshBasicMaterial({ color: 0xafa192 })
     var geometry_shape = new THREE.ShapeBufferGeometry(shape);
     geometry_shape.rotateX(Math.PI / 2)
     geometry_shape.translate(0, side_length_x / 2, 0)
 
+    material_side_plane = new THREE.MeshBasicMaterial({ color: 0xafa192 , side : THREE.BackSide})
     var mesh_shape = new THREE.Mesh(geometry_shape, material_side_plane);
     scene.add(mesh_shape)
 
@@ -191,7 +211,6 @@ function addBasePlane(width, height, geometry) {
 
     var mesh = new THREE.Line(geo, mat);
     scene.add(mesh)
-
 
     points = []
     shape = new THREE.Shape();
@@ -231,10 +250,10 @@ function addBasePlane(width, height, geometry) {
     geometry_shape.rotateZ(Math.PI / 2)
     geometry_shape.translate(-side_length_y / 2, 0, 0)
 
+    
+    material_side_plane = new THREE.MeshBasicMaterial({ color: 0xafa192, side : THREE.BackSide })
     mesh_shape = new THREE.Mesh(geometry_shape, material_side_plane);
     scene.add(mesh_shape)
-
-
 
     geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(points), 3));
@@ -246,7 +265,7 @@ function addBasePlane(width, height, geometry) {
     shape = new THREE.Shape();
 
     j = 0;
-    console.log("90 " + ((width + 1) * height))
+    
     for (var i = 0; i < width + 1; i++) {
 
         j = ((width + 1) * height) + i
@@ -264,13 +283,11 @@ function addBasePlane(width, height, geometry) {
         points.push(geometry.vertices[j].z)
         shape.lineTo(geometry.vertices[j].x, geometry.vertices[j].z)
 
-
         if (i == width) {
             points.push(geometry.vertices[j].x)
             points.push(geometry.vertices[j].y)
             points.push(base_plane_z)
             shape.lineTo(geometry.vertices[j].x, base_plane_z)
-
 
             points.push(geometry.vertices[((width + 1) * height)].x)
             points.push(geometry.vertices[((width + 1) * height)].y)
@@ -283,6 +300,8 @@ function addBasePlane(width, height, geometry) {
     geometry_shape.rotateX(Math.PI / 2)
     geometry_shape.translate(0, -side_length_x / 2, 0)
 
+    
+    material_side_plane = new THREE.MeshBasicMaterial({ color: 0xafa192 , side : THREE.FrontSide})
     mesh_shape = new THREE.Mesh(geometry_shape, material_side_plane);
     scene.add(mesh_shape)
 
@@ -333,6 +352,9 @@ function addBasePlane(width, height, geometry) {
     geometry_shape.rotateZ(Math.PI / 2)
     geometry_shape.translate(side_length_y / 2, 0, 0)
 
+    
+    material_side_plane = new THREE.MeshBasicMaterial({ color: 0xafa192 , side : THREE.FrontSide})
+
     mesh_shape = new THREE.Mesh(geometry_shape, material_side_plane);
     scene.add(mesh_shape)
 
@@ -366,15 +388,7 @@ function loadTerrain(file, callback) {
 }
 
 function render() {
-    pointLight.position.copy(camera.position);
     renderer.render(scene, camera);
 }
 
 init()
-
-function getFig1_1No1(container_id) {
-    Fig1_1No1.getFig1_1No1(container_id);
-    console.log("here..")
-}
-
-export { getFig1_1No1 }
