@@ -1,8 +1,59 @@
-body{
+@font-face {
+    font-family: "Pyidaungsu";
+    src: url("../styles/Pyidaungsu-2.5.3_Regular.ttf")
+}
+
+body {
     margin: 0;
+    font-family: "Pyidaungsu";
+    src: url("../styles/Pyidaungsu-2.5.3_Regular.ttf");
+    line-height : 1.8em;
     overflow-y: hidden;
 }
 
 #view-3d{
     
+}
+
+#altitude-slider{
+    position: absolute;
+    transform: rotate(-90deg);
+    width: 250px;
+    height: 3px;
+    top: 120px;
+    right: -120px;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background: #4e463d;
+    outline: none;
+    padding: 0;
+    margin: 22px;
+    margin-left : 39px;
+    margin-bottom: 15px;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #cf6902;
+    cursor: pointer;
+    margin: 15px 0px;
+    
+}
+
+.slider::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: #cf6902;
+    cursor: pointer;
+    margin: 10px;
 }

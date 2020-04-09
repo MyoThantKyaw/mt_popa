@@ -1,19 +1,23 @@
 var THREE = require("three");
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-// import { GLTFLoader, GLTFParser } from 'three/examples/jsm/loaders/GLTFLoader';
-// import { Mesh, Sphere, RedIntegerFormat, BoxGeometry } from 'three';
 
 require("./TerrainLoader")
 // import {img} from "../src/index_2"
 
+var altitude_tile;
 
 var scene, camera, renderer, orbit;
 var perspective_camera;
-var ball;
-var pointLight;
+var text_alt;
+var side_length_y, side_length_x;
+
+var mountain_height = 1518; // in meters
+var xMid;
+let altitude_plane;
+var min_alt = 9999, max_alt = 0;
+var label_font;
 
 function init() {
-
 
     // var image = new Image();
     // image.src = img.data;
@@ -58,39 +62,6 @@ function init() {
     var spotLight = new THREE.SpotLight(0xffffff);
     spotLight.position.set(50, 50, 50);
 
-    // scene.add(new THREE.AxesHelper(100))
-    // var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
-    // hemiLight.color.setHSL(0.6, 1, 0.6);
-    // hemiLight.groundColor.setHSL(0.095, 1, 0.75);
-    // hemiLight.position.set(0, 50, 0);
-    // //    scene.add( hemiLight );
-    // hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
-    // hemiLight.color.setHSL(0.6, 1, 0.6);
-    // hemiLight.groundColor.setHSL(0.095, 1, 0.75);
-    // hemiLight.position.set(0, 50, 0);
-    // scene.add( hemiLight );
-
-    // var dirLight = new THREE.DirectionalLight(0xffffff, 1);
-    // dirLight.color.setHSL(0.1, 1, 0.95);
-    // dirLight.position.set(100, 50, 100);
-    // dirLight.position.multiplyScalar(30);
-    // //scene.add( dirLight );
-
-    // var dirLight1 = new THREE.DirectionalLight(0xffffff, 1);
-    // dirLight1.color.setHSL(0.1, 1, 0.95);
-    // dirLight1.position.set(-100, -50, -100);
-    // dirLight1.position.multiplyScalar(30);
-    // ///scene.add( dirLight1 );
-
-    // pointLight = new THREE.PointLight(0xffffff, 1);
-    // pointLight.position.copy(camera.position);
-    // scene.add(pointLight);
-
-    // var spotLight1 = new THREE.SpotLight(0xffffff);
-    // spotLight1.position.set(-50, -50, -50);
-
-    // scene.add(spotLight1)
-    // loadTerrain();
     render();
 
     var terrainLoader = new THREE.TerrainLoader()
@@ -98,28 +69,22 @@ function init() {
 
         var width = (210) - 1;
         var height = (196) - 1;
+        var error_alt = mountain_height - 1493;
         
         var geometry = new THREE.PlaneGeometry(150, 150 / ((width + 1) / (height + 1)), width, height);
-        // var geometry_buffer = new THREE.PlaneBufferGeometry(150, 150 * ((height + 1)/ (width + 1)) , width, height);
-
-        for (var i = 0, l = geometry.vertices.length; i < l; i++) {
-            geometry.vertices[i].z = (data[i] / 40) - 10;
-           
-        }
         
-        // let pos = geometry_buffer.getAttribute("position");
-        // let pa = pos.array;
+        var alt;
+        for (var i = 0, l = geometry.vertices.length; i < l; i++) {
+            alt = data[i] + error_alt;
+            geometry.vertices[i].z = alt / 40;
 
-        // var hVerts = width  + 1;
-        // var wVerts = height + 1;
-
-        // var index = 0
-        // for (let j = 0; j < hVerts; j++) {
-        //     for (let i = 0; i < wVerts; i++) {
-        //         pa[3*(j*wVerts+i)+2] =  (data[index++] / 33) - 10;
-        //     }
-        // }
-        // pos.needsUpdate = true;
+            if(alt < min_alt){
+                min_alt = alt;
+            }
+            else if(alt > max_alt){
+                max_alt = alt;
+            }
+        }
         var bufferGeometry = new THREE.BufferGeometry().fromGeometry( geometry );
 
         var texture_loader = new THREE.TextureLoader();
@@ -132,9 +97,7 @@ function init() {
             function ( texture ) {
                 // in this example we create the material when the texture is loaded
                 var material = new THREE.MeshBasicMaterial({
-            
                     map: texture,
-            
                 });
         
                 var plane = new THREE.Mesh(bufferGeometry, material);
@@ -144,29 +107,22 @@ function init() {
                 
                 render();
             },
-        
             // onProgress callback currently not supported
             undefined,
-        
             // onError callback
-            function ( err ) {
-                console.error( 'An error happened.' );
-            }
+            function ( err ) {console.error( 'An error happened.' );}
         );
-        
-
-        
 
         render();
     });
 
 }
-
+var base_plane_z = 6;
 function addBasePlane(width, height, geometry) {
-    var base_plane_z = -2.7;
+    
     var mat = new THREE.MeshBasicMaterial({ color: 0x84796e});
     var points = []
-
+    
     var shape = new THREE.Shape();
 
     for (var j = 0; j < width + 1; j++) {
@@ -194,8 +150,8 @@ function addBasePlane(width, height, geometry) {
             shape.lineTo(geometry.vertices[0].x, base_plane_z)
         }
     }
-    var side_length_y = Math.abs(geometry.vertices[width].x - geometry.vertices[0].x)
-    var side_length_x = Math.abs(geometry.vertices[0].y - geometry.vertices[height * (width + 1)].y)
+    side_length_y = Math.abs(geometry.vertices[width].x - geometry.vertices[0].x)
+    side_length_x = Math.abs(geometry.vertices[0].y - geometry.vertices[height * (width + 1)].y)
 
     var material_side_plane = new THREE.MeshBasicMaterial({ color: 0xafa192 })
     var geometry_shape = new THREE.ShapeBufferGeometry(shape);
@@ -292,19 +248,16 @@ function addBasePlane(width, height, geometry) {
             points.push(geometry.vertices[((width + 1) * height)].x)
             points.push(geometry.vertices[((width + 1) * height)].y)
             points.push(base_plane_z)
-            shape.lineTo(geometry.vertices[((width + 1) * height)].x, base_plane_z)
-
+            shape.lineTo(geometry.vertices[((width + 1) * height)].x, base_plane_z);
         }
     }
     geometry_shape = new THREE.ShapeBufferGeometry(shape);
     geometry_shape.rotateX(Math.PI / 2)
     geometry_shape.translate(0, -side_length_x / 2, 0)
-
     
     material_side_plane = new THREE.MeshBasicMaterial({ color: 0xafa192 , side : THREE.FrontSide})
     mesh_shape = new THREE.Mesh(geometry_shape, material_side_plane);
     scene.add(mesh_shape)
-
 
     var geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(points), 3));
@@ -325,7 +278,6 @@ function addBasePlane(width, height, geometry) {
             points.push(geometry.vertices[j].y)
             points.push(base_plane_z)
             shape.moveTo(geometry.vertices[j].y, base_plane_z)
-
         }
 
         points.push(geometry.vertices[j].x)
@@ -343,7 +295,6 @@ function addBasePlane(width, height, geometry) {
             points.push(geometry.vertices[width].y)
             points.push(base_plane_z)
             shape.lineTo(geometry.vertices[width].y, base_plane_z)
-
         }
     }
 
@@ -352,43 +303,127 @@ function addBasePlane(width, height, geometry) {
     geometry_shape.rotateZ(Math.PI / 2)
     geometry_shape.translate(side_length_y / 2, 0, 0)
 
-    
     material_side_plane = new THREE.MeshBasicMaterial({ color: 0xafa192 , side : THREE.FrontSide})
 
     mesh_shape = new THREE.Mesh(geometry_shape, material_side_plane);
     scene.add(mesh_shape)
-
 
     geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(points), 3));
 
     var mesh = new THREE.Line(geo, mat);
     scene.add(mesh)
+    // scene.add(new THREE.AxesHelper(100))
 
-    var geometry_base = new THREE.PlaneGeometry( side_length_y,side_length_x, 3);
+    var geometry_base = new THREE.PlaneGeometry(side_length_y, side_length_x, 3);
     geometry_base.rotateX(Math.PI)
     geometry_base.translate(0, 0, base_plane_z)
     
     var plane_base = new THREE.Mesh(geometry_base, mat);
     scene.add(plane_base);
 
-    render();
-}
+    var altitude_plane_geometry = new THREE.PlaneGeometry(side_length_y, side_length_x, 3);
+    altitude_plane_geometry.rotateX(Math.PI);
+    altitude_plane_geometry.translate(0, 0, base_plane_z);
 
-function loadTerrain(file, callback) {
-    var xhr = new XMLHttpRequest();
-    xhr.responseType = 'arraybuffer';
-    xhr.open('GET', file, true);
-    xhr.onload = function (evt) {
-        if (xhr.response) {
-            callback(new Uint16Array(xhr.response));
-        }
-    };
-    xhr.send(null);
+    var mat_for_alt_plane = new THREE.MeshBasicMaterial({color : 0xbbbbbb, side : THREE.DoubleSide, transparent : true, opacity : .7})
+    altitude_plane = new THREE.Mesh(altitude_plane_geometry, mat_for_alt_plane);
+    
+    scene.add(altitude_plane);
+
+    var material_title = new THREE.LineBasicMaterial({
+        color: 0x0000ff
+    });
+    
+    var points = [];
+    points.push( new THREE.Vector3(0, 0,   base_plane_z ) );
+    points.push( new THREE.Vector3(0, 0,  base_plane_z) );
+    
+    var geometry_title = new THREE.BufferGeometry().setFromPoints( points );
+    geometry_title.translate( side_length_y / 2 + .1, side_length_x / 2 + .1,0)
+    
+    altitude_tile = new THREE.Line(geometry_title, material_title );
+    scene.add( altitude_tile );
+    
+    var loader = new THREE.FontLoader();
+    loader.load('styles/Zawgyi-One_Regular.json', function(font) {
+        label_font = font;
+
+        
+        var color = 0xff0000;
+
+        var matLite = new THREE.MeshBasicMaterial({
+            color: color,
+            transparent: true,
+            opacity: 1,
+            side: THREE.DoubleSide
+        });
+
+        var message = "ေပ ၁၀၀၀";
+
+        var shapes = font.generateShapes(message, 4);
+
+        var geometry = new THREE.ShapeBufferGeometry(shapes);
+
+        geometry.computeBoundingBox();
+
+        xMid = - (geometry.boundingBox.max.x - geometry.boundingBox.min.x);
+
+        geometry.translate(xMid - 1, 0, 0);
+        geometry.rotateZ(Math.PI )
+        geometry.rotateX(-Math.PI / 2)
+        geometry.rotateZ(Math.PI / 4)
+
+        text_alt = new THREE.Mesh(geometry, matLite);
+        text_alt.position.z = 0 + base_plane_z;
+        text_alt.position.x = side_length_y / 2 + .1;
+        text_alt.position.y = side_length_x / 2 + .1;
+        text_alt.visible = false;
+        scene.add(text_alt);
+    })
+
+    handleActions();
+    render();
 }
 
 function render() {
     renderer.render(scene, camera);
+}
+
+function handleActions(){
+    var altitude_slider = document.getElementById("altitude-slider");
+    
+    altitude_slider.oninput = function(e){
+        var value = parseFloat(altitude_slider.value);
+        altitude_plane.position.set(0, 0, value - base_plane_z);  
+    
+        var shapes = label_font.generateShapes("ေပ " + parseInt( (value * 40)), 4);
+
+        var text_geometry = new THREE.ShapeBufferGeometry(shapes);
+        
+        text_geometry.translate(xMid - 1, 0, 0);
+        text_geometry.rotateZ(Math.PI )
+        text_geometry.rotateX(-Math.PI / 2)
+        text_geometry.rotateZ(Math.PI / 4)
+
+        text_alt.geometry = text_geometry;
+
+        if(value == 6){
+            text_alt.visible = false;
+        }
+        else{
+            text_alt.visible = true;
+        }
+        
+        text_alt.position.x = side_length_y / 2 + .1;
+        text_alt.position.y = side_length_x / 2 + .1;
+        
+        text_alt.position.z = value - 3;
+        altitude_tile.geometry.attributes.position.array[5] = value;
+        altitude_tile.geometry.attributes.position.needsUpdate = true;
+
+        render()
+    }
 }
 
 init()
