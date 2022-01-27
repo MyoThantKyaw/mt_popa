@@ -22,6 +22,6 @@
     "file-loader": "^6.0.0",
     "geotiff": "^1.0.0-beta.8",
     "image-webpack-loader": "^6.0.0",
-    "three": "^0.114.0"
+    "three": "^0.137.0"
   }
 }
